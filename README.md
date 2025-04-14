@@ -1,4 +1,4 @@
-# Plugin Loader App
+# Plugin Loader
 
 This application uses `carla-single` to load installed LV2 and VST plugins. Optionally, **Jalv** can be used for LV2 plugins.
 
