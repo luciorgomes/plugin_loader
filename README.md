@@ -25,12 +25,12 @@ Configure plugin directories, audio connections, and more.
 
 ### Options
 
-- **VST2/3 Directories**: Add folders containing VST plugins, including those managed by **Yabridge** or located in Windows directories.
+- **VST2/3 Directories**: Add folders containing VST plugins, including those managed by **Yabridge** and where the Windows VSTs are installed.
 - **Keyboard/Interface Substring**: Enter part of the **JACK** name for MIDI and Audio interfaces to be used with the **Connect** feature.
 - **Audio Connections Retry**: Number of attempts to connect audio ports (Recommended: `2`).
 - **Terminal (Console)**: (Optional) Terminal application to use when launching plugins or processes.
 - **Load VST2/3** / **Load LV2**: Select which plugin types to load.
-- **Audio Connections**: Define how many audio ports to connect.
+- **Audio Connections**: Define how many audio hardware ports to connect.
 
 ---
 
@@ -41,13 +41,6 @@ Configure plugin directories, audio connections, and more.
 - **Carla**
 - **Jalv** (optional)
 - Optional: **Yabridge**, **Wine**, or other tools for bridging Windows VSTs
-
----
-
-## 📌 Notes
-
-- `carla-single` is the core engine used for plugin launching.
-- Some plugins or setups may cause instability under KDE with autoconnection enabled.
 
 ---
 
