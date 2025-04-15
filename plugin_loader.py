@@ -33,7 +33,8 @@ class Plugin(PluginFrame):
         self.midi_input, self.midi_output, self.midi_in_hardware, self.midi_out_hardware = [], [], [], []
         self.audio_input, self.audio_output, self.audio_in_hardware, self.audio_out_hardware = [], [], [], []
         self.input_app, self.output_app, self.output_app_midi, self.input_app_midi = [], [], [], []
-        self.app_names = []
+        self.added_terminal_options, self.app_names = [], []
+
         self.read_config()
         self.atualiza_listas()
         self.set_size()
@@ -66,6 +67,11 @@ class Plugin(PluginFrame):
         self.terminal = self.config_json.get('terminal', '')
         if self.terminal:
             self.combo_box_terminal.SetValue(self.terminal)
+
+        self.added_terminal_options = self.config_json.get('added_terminal_options', [])
+        if self.added_terminal_options:
+            for option in self.added_terminal_options:
+                self.combo_box_terminal.Append(option)
 
         self.load_vst = self.config_json.get('load_vst', True)
         self.checkbox_load_vst.SetValue(self.load_vst)
@@ -450,6 +456,22 @@ class Plugin(PluginFrame):
     def set_terminal(self, event):  # wxGlade: VstFrame.<event_handler>
         self.terminal = self.combo_box_terminal.GetString(self.combo_box_terminal.GetSelection())
         self.config_json['terminal'] = self.terminal
+        self.write_config()
+        event.Skip()
+
+    def add_terminal(self, event):  # wxGlade: PluginFrame.<event_handler>
+        new_terminal = self.combo_box_terminal.GetValue()
+        if new_terminal and new_terminal not in self.combo_box_terminal.GetItems():
+            confirm = wx.MessageBox(
+                f'Do you want to add "{new_terminal}" to the Terminal list and select it?',
+                'Confirm Add Terminal',
+                wx.YES_NO | wx.ICON_QUESTION
+            )
+            if confirm == wx.YES:
+                self.combo_box_terminal.Append(new_terminal)
+                self.added_terminal_options.append(new_terminal)
+                self.config_json['added_terminal_options'] = self.added_terminal_options
+        self.config_json['terminal'] = new_terminal
         self.write_config()
         event.Skip()
 
