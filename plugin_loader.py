@@ -194,9 +194,9 @@ class Plugin(PluginFrame):
             else:
                 extensao = EXTENSAO_VST2_WINE
 
-            if self.terminal != '-':
+            if self.terminal != 'None':
                 # print(f"{self.terminal} -e carla-single {self.arch} vst2 '{self.vst2_dict[choice_vst]}' &")
-                os.system(f"{self.terminal} -e carla-single {self.arch} vst2 '{self.vst2_dict[choice_vst]}' &")
+                os.system(f"{self.terminal} -e 'carla-single {self.arch} vst2 {self.vst2_dict[choice_vst]}' &")
 
             else:
                 # os.system(f"carla-single {self.arch} vst2 '{choice_vst[:-7]}{extensao}' &")
@@ -208,22 +208,25 @@ class Plugin(PluginFrame):
             else:
                 extensao = EXTENSAO_VST3_WINE
             # terminal_command = f'{self.terminal} -e '
-            if self.terminal != '-':
+            if self.terminal != 'None':
                 # os.system(f"{self.terminal} -e carla-single {self.arch} vst3 '{choice_vst[:-7]}{extensao}' &")
-                os.system(f"{self.terminal} -e carla-single {self.arch} vst3 '{self.vst3_dict[choice_vst]}' &")
+                os.system(f"{self.terminal} -e 'carla-single {self.arch} vst3 {self.vst3_dict[choice_vst]}' &")
 
             else:
                 os.system(f"carla-single {self.arch} vst3 '{self.vst3_dict[choice_vst]}' &")
 
         else:  #lv2
             prefix_console = ''
-            if self.terminal != '-':
-                prefix_console = self.terminal + ' -e '
+            sufix_console = ''
+            if self.terminal != 'None':
+                prefix_console = self.terminal + " -e '"
+                sufix_console = "'"
             if not self.checkbox_jalv.GetValue():
-                os.system(f'{prefix_console}carla-single native lv2 {self.lv2_dict[choice_vst]} &')
+                os.system(f"{prefix_console}carla-single native lv2 {self.lv2_dict[choice_vst]}{sufix_console} &")
+                print(f"{prefix_console}carla-single native lv2 {self.lv2_dict[choice_vst]}{sufix_console} &")
             else:
                 os.system(
-                    f'{prefix_console}jalv.gtk3 {self.lv2_dict[choice_vst]} &')  # recupera o comando do dicionário
+                    f"{prefix_console}jalv.gtk3 {self.lv2_dict[choice_vst]}{sufix_console} &")  # recupera o comando do dicionário
 
         # self.recover_jack_names(self.repeat_retry_connection)
 
