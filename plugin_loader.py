@@ -49,7 +49,7 @@ class Plugin(PluginFrame):
 
 
     def read_config(self):
-        with open('./.config', 'r') as config_file:
+        with open('.config_custom', 'r') as config_file:
             self.config_json = json.load(config_file)
         self.load_setup_data()
 
@@ -99,7 +99,7 @@ class Plugin(PluginFrame):
             self.list_box_vst3_directories.Append(item)
 
     def write_config(self):
-        with open('.config', 'w') as file:
+        with open('.config_custom', 'w') as file:
             json.dump(self.config_json, file, sort_keys=True, indent=4)
 
     def atualiza_listas(self):
@@ -196,8 +196,7 @@ class Plugin(PluginFrame):
 
             if self.terminal != 'None':
                 # print(f"{self.terminal} -e carla-single {self.arch} vst2 '{self.vst2_dict[choice_vst]}' &")
-                os.system(f"{self.terminal} -e 'carla-single {self.arch} vst2 {self.vst2_dict[choice_vst]}' &")
-
+                os.system(f"{self.terminal} -e \"carla-single {self.arch} vst2 '{self.vst2_dict[choice_vst]}'\" &")
             else:
                 # os.system(f"carla-single {self.arch} vst2 '{choice_vst[:-7]}{extensao}' &")
                 os.system(f"carla-single {self.arch} vst2 '{self.vst2_dict[choice_vst]}' &")
@@ -210,7 +209,7 @@ class Plugin(PluginFrame):
             # terminal_command = f'{self.terminal} -e '
             if self.terminal != 'None':
                 # os.system(f"{self.terminal} -e carla-single {self.arch} vst3 '{choice_vst[:-7]}{extensao}' &")
-                os.system(f"{self.terminal} -e 'carla-single {self.arch} vst3 {self.vst3_dict[choice_vst]}' &")
+                os.system(f"{self.terminal} -e \"carla-single {self.arch} vst3 '{self.vst3_dict[choice_vst]}'\" &")
 
             else:
                 os.system(f"carla-single {self.arch} vst3 '{self.vst3_dict[choice_vst]}' &")
@@ -223,7 +222,6 @@ class Plugin(PluginFrame):
                 sufix_console = "'"
             if not self.checkbox_jalv.GetValue():
                 os.system(f"{prefix_console}carla-single native lv2 {self.lv2_dict[choice_vst]}{sufix_console} &")
-                print(f"{prefix_console}carla-single native lv2 {self.lv2_dict[choice_vst]}{sufix_console} &")
             else:
                 os.system(
                     f"{prefix_console}jalv.gtk3 {self.lv2_dict[choice_vst]}{sufix_console} &")  # recupera o comando do dicionário
