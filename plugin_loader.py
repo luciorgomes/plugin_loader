@@ -49,7 +49,7 @@ class Plugin(PluginFrame):
 
 
     def read_config(self):
-        with open('.config_custom', 'r') as config_file:
+        with open('.config', 'r') as config_file:
             self.config_json = json.load(config_file)
         self.load_setup_data()
 
