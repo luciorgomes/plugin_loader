@@ -99,7 +99,7 @@ class Plugin(PluginFrame):
             self.list_box_vst3_directories.Append(item)
 
     def write_config(self):
-        with open('.config_custom', 'w') as file:
+        with open('.config', 'w') as file:
             json.dump(self.config_json, file, sort_keys=True, indent=4)
 
     def atualiza_listas(self):
