@@ -6,12 +6,14 @@ import json
 import subprocess
 import threading
 from itertools import cycle
+import ardour_data_converter as ac
 
 EXTENSAO_VST2 = '.so'
 EXTENSAO_VST2_WINE = '.dll'
 
 EXTENSAO_FOLDER_VST3 = '.vst3'
 EXTENSAO_VST3_WINE = '.vst3'
+CONFIG = '.config'
 
 
 class Plugin(PluginFrame):
@@ -34,8 +36,10 @@ class Plugin(PluginFrame):
         self.audio_input, self.audio_output, self.audio_in_hardware, self.audio_out_hardware = [], [], [], []
         self.input_app, self.output_app, self.output_app_midi, self.input_app_midi = [], [], [], []
         self.added_terminal_options, self.app_names = [], []
+        self.plugins_ardour = dict()
 
         self.read_config()
+        self.read_plugins_ardour_json()
         self.atualiza_listas()
         self.set_size()
 
@@ -47,9 +51,14 @@ class Plugin(PluginFrame):
         else: # tested only with 'gnome':
             self.SetSize((850, 620))
 
+    def read_plugins_ardour_json(self):
+        if os.path.exists('plugins_ardour.json'):
+            with open('plugins_ardour.json', 'r') as file:
+                self.plugins_ardour = json.load(file)
+
 
     def read_config(self):
-        with open('.config', 'r') as config_file:
+        with open(CONFIG, 'r') as config_file:
             self.config_json = json.load(config_file)
         self.load_setup_data()
 
@@ -99,11 +108,11 @@ class Plugin(PluginFrame):
             self.list_box_vst3_directories.Append(item)
 
     def write_config(self):
-        with open('.config', 'w') as file:
+        with open(CONFIG, 'w') as file:
             json.dump(self.config_json, file, sort_keys=True, indent=4)
 
     def atualiza_listas(self):
-        '''Load the vsts names in the listboxes'''
+        '''Load the vsts names i the listboxes'''
         self.list_box_vst_lv2.Clear()
         if self.load_vst: # if setup is set to load vst
             self.vst2_dict.clear()
@@ -112,12 +121,37 @@ class Plugin(PluginFrame):
                     for filename in filenames:
                         if self.arch == 'native':
                             if filename.endswith(EXTENSAO_VST2):
-                                key = filename[:-3] + ' - VST2'
+                                vst2_plugin = filename[:-3]
+                                suf, category, creator = '', '', ''
+                                if self.plugins_ardour:
+                                    for plugin in self.plugins_ardour.get('plugins',''):
+                                        if plugin.get('name', '') == vst2_plugin or vst2_plugin in plugin.get('path', ''):
+                                            category = plugin.get('category', '')
+                                            if category:
+                                                category = ('category: ' + category).strip()
+                                            creator = plugin.get('creator', '')
+                                            if creator:
+                                                creator = '- creator: ' + creator
+                                            suf = f' - {category}  {creator}'
+                                key = vst2_plugin + ' - VST2' + suf
                                 if key not in self.vst2_dict:
                                     self.vst2_dict[key] = os.path.join(foldername, filename)
                         else:
                             if filename.endswith(EXTENSAO_VST2_WINE) and filename[:-4] not in self.vst2_dict:
-                                key = filename[:-4] + ' - VST2'
+                                vst2_plugin = filename[:-4]
+                                suf, category, creator = '', '', ''
+                                if self.plugins_ardour:
+                                    for plugin in self.plugins_ardour.get('plugins', ''):
+                                        if plugin.get('name', '') == vst2_plugin or vst2_plugin in plugin.get('path', ''):
+                                            category = plugin.get('category', '')
+                                            if category:
+                                                category = ('category: ' + category).strip()
+                                            creator = plugin.get('creator', '')
+                                            if creator:
+                                                creator = '- creator: ' + creator
+                                            suf = f' - {category}  {creator}'
+                                key = vst2_plugin + ' - VST2' + suf
+                                # key = filename[:-4] + ' - VST2'
                                 if key not in self.vst2_dict:
                                     self.vst2_dict[key] = os.path.join(foldername, filename)
 
@@ -131,13 +165,39 @@ class Plugin(PluginFrame):
                     if self.arch == 'native':
                         for subfolder in subfolders:
                             if subfolder.endswith(EXTENSAO_FOLDER_VST3):
-                                key = subfolder[:-5] + ' - VST3'
+                                vst3_plugin = subfolder[:-5]
+                                suf, category, creator = '', '', ''
+                                if self.plugins_ardour:
+                                    for plugin in self.plugins_ardour.get('plugins', ''):
+                                        if plugin.get('name', '') == vst3_plugin or vst3_plugin in plugin.get('path', ''):
+                                            category = plugin.get('category', '')
+                                            if category:
+                                                category = ('category: ' + category).strip()
+                                            creator = plugin.get('creator', '')
+                                            if creator:
+                                                creator = '- creator: ' + creator
+                                            suf = f' - {category}  {creator}'
+                                key = vst3_plugin + ' - VST3' + suf
+                                # key = subfolder[:-5] + ' - VST3'
                                 if key not in self.vst3_dict:
                                     self.vst3_dict[key] = os.path.join(foldername, subfolder)
                     else:
                         for filename in filenames:
                             if filename.endswith(EXTENSAO_VST3_WINE) and self.arch != 'native':
-                                key = filename[:-5] + ' - VST3'
+                                vst3_plugin = filename[:-5]
+                                suf, category, creator = '', '', ''
+                                if self.plugins_ardour:
+                                    for plugin in self.plugins_ardour.get('plugins', ''):
+                                        if plugin.get('name', '') == vst3_plugin or vst3_plugin in plugin.get('path', ''):
+                                            category = plugin.get('category', '')
+                                            if category:
+                                                category = ('category: ' + category).strip()
+                                            creator = plugin.get('creator', '')
+                                            if creator:
+                                                creator = '- creator: ' + creator
+                                            suf = f' - {category}  {creator}'
+                                key = vst3_plugin + ' - VST3' + suf
+                                # key = filename[:-5] + ' - VST3'
                                 if key not in self.vst3_dict:
                                     self.vst3_dict[key] = os.path.join(foldername, filename)
             for key in sorted(self.vst3_dict.keys()):
@@ -180,7 +240,24 @@ class Plugin(PluginFrame):
 
             print("Done...")
 
-            self.lv2_dict = {self.lv2_names[i] + ' - LV2': self.lv2_uri[i] for i in range(len(self.lv2_names)) if (self.lv2_names[i] and self.lv2_names[i]!='(null)')}
+            self.lv2_dict_ori = {self.lv2_names[i] : self.lv2_uri[i] for i in range(len(self.lv2_names)) if (self.lv2_names[i] and self.lv2_names[i]!='(null)')}
+
+            for name, uri in self.lv2_dict_ori.items():
+                # print(f"Key: {key}, Value: {value}")
+                # vst3_plugin = filename[:-5]
+                suf, category, creator = '', '', ''
+                if self.plugins_ardour:
+                    for plugin in self.plugins_ardour.get('plugins', ''):
+                        if plugin.get('uri', '') == uri:
+                            category = plugin.get('category', '')
+                            if category:
+                                category = ('category: ' + category).strip()
+                            author = plugin.get('author', '')
+                            if author:
+                                author = '- author:' + author
+                            suf = f' - {category}  {author}'
+                key = name + ' - LV2' + suf
+                self.lv2_dict[key] = uri
             # print(self.lv2_dict)
 
     def listbox_vst_lv2_double_click(self, event):  # wxGlade: MyFrame.<event_handler>
@@ -400,7 +477,7 @@ class Plugin(PluginFrame):
         for comando in comandos:
             return_value = os.popen(comando).read()
             return_values += return_value
-        print(return_values)
+        # print(return_values)
         event.Skip()
 
     def load_dir_dialog(self):
@@ -524,6 +601,7 @@ class MyApp(wx.App):
 # end of class MyApp
 
 if __name__ == "__main__":
+    ac.main() # search for the scanned plugins file from ardour.
     print('Reading lv2ls...')
     plugin_standalone = MyApp(0)
     plugin_standalone.MainLoop()
